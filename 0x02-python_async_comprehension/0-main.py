@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-0-async_generator module
+0-main module
 """
 import asyncio
 
