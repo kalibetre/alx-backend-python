@@ -2,8 +2,8 @@
 """
 0-async_generator module
 """
+import asyncio
 import random
-import time
 
 
 async def async_generator():
@@ -12,5 +12,5 @@ async def async_generator():
     every second
     """
     for _ in range(10):
-        time.sleep(1)
+        await asyncio.sleep(1)
         yield random.uniform(0, 10)
