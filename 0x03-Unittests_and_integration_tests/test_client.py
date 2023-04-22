@@ -2,11 +2,12 @@
 """A test module for utils module
 """
 import unittest
-from unittest.mock import PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 
 GithubOrgClient = __import__('client').GithubOrgClient
+TEST_PAYLOAD = __import__('fixtures').TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -68,3 +69,40 @@ class TestGithubOrgClient(unittest.TestCase):
         """
         self.assertEqual(GithubOrgClient.has_license(repo, license_key),
                          expected)
+
+
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'),
+    TEST_PAYLOAD,
+)
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Integration test for GithubOrgClient class
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Set up class
+        """
+        cls.get_patcher = patch('requests.get', new=MagicMock())
+        cls.mock_get = cls.get_patcher.start()
+        cls.mock_get.return_value.json.return_value = cls.org_payload
+
+    @classmethod
+    def tearDownClass(cls):
+        """Tear down class
+        """
+        cls.get_patcher.stop()
+
+    def test_requests_get_with_side_effect(self):
+        """Test requests.get with side_effect
+        """
+        self.mock_get.return_value.json.side_effect = [
+            self.org_payload,
+            self.repos_payload,
+        ]
+        client = GithubOrgClient('google')
+        org = client.org
+        repos = client.public_repos()
+
+        self.assertEqual(org, self.org_payload)
+        self.assertEqual(repos, self.expected_repos)
