@@ -2,7 +2,7 @@
 """A test module for utils module
 """
 import unittest
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 from parameterized import parameterized
 
@@ -23,6 +23,12 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(client.org, mock_get_json.return_value)
         mock_get_json.assert_called_once()
 
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_public_repos_url(self):
+        """Test the _public_repos_url property
+        """
+        with patch('client.GithubOrgClient.org',
+                   new_callable=PropertyMock) as mock_org:
+            expected = {"repos_url": 'GithubOrgClient.org'}
+            mock_org.return_value = expected
+            client = GithubOrgClient(expected)
+            self.assertEqual(client._public_repos_url, expected['repos_url'])
