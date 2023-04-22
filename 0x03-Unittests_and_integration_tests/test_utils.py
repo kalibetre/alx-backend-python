@@ -2,7 +2,7 @@
 """A test module for utils module
 """
 import unittest
-from unittest.mock import PropertyMock, patch
+from unittest.mock import patch
 
 from parameterized import parameterized
 
