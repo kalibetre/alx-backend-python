@@ -85,7 +85,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """
         cls.get_patcher = patch('requests.get', new=MagicMock())
         cls.mock_get = cls.get_patcher.start()
-        cls.mock_get.return_value.json.return_value = cls.org_payload
 
     @classmethod
     def tearDownClass(cls):
@@ -106,3 +105,27 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         self.assertEqual(org, self.org_payload)
         self.assertEqual(repos, self.expected_repos)
+
+    def test_public_repos(self):
+        """Test public_repos method
+        """
+        self.mock_get.return_value.json.side_effect = [
+            self.org_payload,
+            self.repos_payload,
+        ]
+        client = GithubOrgClient('google')
+        repos = client.public_repos()
+
+        self.assertEqual(repos, self.expected_repos)
+
+    def test_public_repos_with_license(self):
+        """Test public_repos with license method
+        """
+        self.mock_get.return_value.json.side_effect = [
+            self.org_payload,
+            self.repos_payload,
+        ]
+        client = GithubOrgClient('google')
+        repos = client.public_repos(license="apache-2.0")
+
+        self.assertEqual(repos, self.apache2_repos)
